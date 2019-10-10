@@ -1,0 +1,24 @@
+{
+  "name": "merkle-bridge-js",
+  "version": "0.0.1",
+  "description": "Merkle Bridge JS SDK containing helper functions for interacting with the bridge",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --require @babel/register --require @babel/polyfill"
+  },
+  "author": "Aergo.io",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/polyfill": "^7.6.0",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/register": "^7.6.2",
+    "@herajs/wallet": "^0.13.2",
+    "mocha": "^6.2.0"
+  },
+  "dependencies": {
+    "@herajs/client": "^0.13.2",
+    "bignumber.js": "^9.0.0",
+    "web3": "^2.0.0-alpha.1"
+  }
+}

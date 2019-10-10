@@ -1,0 +1,1 @@
+# eth-merkle-bridge-js  -  Javascript SDK for Ethereum <-> Aergo Merkle bridge.
