@@ -1,4 +1,4 @@
-export let bridgeAbi = 
+export let bridgeEthAbi = 
 [
 	{
 		"constant": true,

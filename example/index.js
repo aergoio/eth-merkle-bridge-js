@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 import { AergoClient, Contract } from '@herajs/client';
 import * as eta from '../src/ethToAergo.js';
-import { bridgeAbi } from "../test/fixtures/bridgeAbi";
+import { bridgeEthAbi } from "../test/fixtures/bridgeEthAbi";
 import { erc20Abi } from "../test/fixtures/erc20Abi";
 import { BigNumber } from "bignumber.js";
 
@@ -37,6 +37,8 @@ console.log(hera)
 const bridgeEthAddr = "0x89eD1D1C145F6bF3A7e62d2B8eB0e1Bf15Cb2374";
 const bridgeAergoAddr = "AmgQqVWX3JADRBEVkVCM4CyWdoeXuumeYGGJJxEeoAukRC26hxmw";
 const aergoErc20Addr = "0xd898383A12CDE0eDF7642F7dD4D7006FdE5c433e";
+let bridgeAergoAbi 
+(async () => { bridgeAergoAbi = await hera.getABI(bridgeAergoAddr) })();
 
 
 document.getElementById("approval").onclick = async () => {
@@ -59,7 +61,7 @@ document.getElementById("lock").onclick = async () => {
     const receiverAergoAddr = document.getElementById("receiver").value;
     const receipt = await eta.lock(
         web3, receiverAergoAddr, aergoErc20Addr, amount, bridgeEthAddr, 
-        bridgeAbi
+        bridgeEthAbi
     );
     console.log("LOCK RECEIPT:", receipt);
     let info = document.createElement('div');
@@ -79,7 +81,7 @@ document.getElementById("unfreeze").onclick = async () => {
     let blockoWeb3 = new Web3("http://localhost:8545");
     let builtTx = await eta.buildUnfreezeTx(
         blockoWeb3, hera, txSender, bridgeEthAddr, bridgeAergoAddr,
-        receiverAergoAddr, aergoErc20Addr
+        bridgeAergoAbi, receiverAergoAddr, aergoErc20Addr
     );
     builtTx.to = bridgeAergoAddr;
     builtTx.payload_json = JSON.parse(builtTx.payload);

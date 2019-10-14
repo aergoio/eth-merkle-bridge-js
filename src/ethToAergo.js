@@ -3,6 +3,10 @@ import { keccak256 } from 'web3-utils';
 import { BigNumber } from "bignumber.js";
 
 
+/* Ethereum -> Aergo ERC20 token transfer */
+/* ====================================== */
+
+
 /**
  * Increase approval so the bridge contract can pull assets
  * @param {object} web3 Provider (metamask or other web3 compatible)
@@ -19,7 +23,7 @@ export function increaseApproval(
     erc20Addr, 
     erc20Abi
 ) {
-    let contract = new web3.eth.Contract(erc20Abi, erc20Addr)
+    const contract = new web3.eth.Contract(erc20Abi, erc20Addr);
     let promise;
     try {
         promise = contract.methods.increaseAllowance(spender, amount).send(
@@ -31,7 +35,7 @@ export function increaseApproval(
             return promise;
         }
     }
-    console.log("increaseAllowance() not in abi, trying increaseApproval()")
+    console.log("increaseAllowance() not in abi, trying increaseApproval()");
     return contract.methods.increaseApproval(spender, amount).send(
         {from: web3.eth.defaultAccount, gas: 300000}
     );
@@ -44,7 +48,7 @@ export function increaseApproval(
  * @param {string} erc20Addr 0x Address of asset
  * @param {string} amount Amount to lock
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
- * @param {object} bridgeAbi Bridge ABI array
+ * @param {object} bridgeEthAbi Bridge ABI array
  * @return {Promise} Promise from web3js send transaction
  */
 export function lock(
@@ -53,13 +57,50 @@ export function lock(
     erc20Addr, 
     amount, 
     bridgeEthAddr, 
-    bridgeAbi
+    bridgeEthAbi
 ) {
-    let contract = new web3.eth.Contract(bridgeAbi, bridgeEthAddr)
+    const contract = new web3.eth.Contract(bridgeEthAbi, bridgeEthAddr);
     return contract.methods.lock(erc20Addr, amount, receiverAergoAddr).send(
         {from: web3.eth.defaultAccount, gas: 300000}
     );
 }
+
+/**
+ * Get the unfreezeable and pending amounts transfering through the bridge
+ * @param {object} web3 Provider (metamask or other web3 compatible)
+ * @param {object} hera Herajs client
+ * @param {string} bridgeEthAddr 0x Address of bridge contrat
+ * @param {string} bridgeAergoAddr Aergo address of bridge contract
+ * @param {string} receiverAergoAddr Aergo address of receiver of unfreezed aergo tokens
+ * @param {string} aergoErc20Addr 0x Address of aergo erc20
+ * @return {string, string} Amount withdrawable now, amount pending new state root anchor
+ */
+export async function unfreezeable(
+    web3,
+    hera,
+    bridgeEthAddr,
+    bridgeAergoAddr,
+    receiverAergoAddr, 
+    aergoErc20Addr, 
+) {
+    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
+    const accountRef = Buffer.concat([
+        Buffer.from(receiverAergoAddr, 'utf-8'), 
+        Buffer.from(aergoErc20Addr.slice(2), 'hex')
+    ]);
+    const ethTrieKey = keccak256(Buffer.concat([accountRef, position]));
+    const aergoStorageKey = Buffer.concat([
+        Buffer.from('_sv__unfreezes-'.concat(receiverAergoAddr), 'utf-8'),
+        Buffer.from(aergoErc20Addr.slice(2), 'hex')
+    ]);
+    return withdrawable(web3, hera, bridgeEthAddr, bridgeAergoAddr, ethTrieKey,
+        aergoStorageKey);
+}
+
+export function minteable() {
+    throw new Error('Not implemented');
+}
+
 
 /**
  * 
@@ -82,18 +123,21 @@ export async function buildLockProof(
     // build lock proof in last merged height 
     // user should have waited and checked withdrawable amount
     // UI should monitor new anchor so that minting doesnt fail just after a new anchor
-    let position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
-    let accountRef = Buffer.concat([
+    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
+    const accountRef = Buffer.concat([
         Buffer.from(receiverAergoAddr, 'utf-8'), 
         Buffer.from(erc20Addr.slice(2), 'hex')
     ]);
-    let trieKey = keccak256(Buffer.concat([accountRef, position]));
+    const ethTrieKey = keccak256(Buffer.concat([accountRef, position]));
     return buildDepositProof(
         web3, hera, bridgeEthAddr, 
-        bridgeAergoAddr, trieKey
+        bridgeAergoAddr, ethTrieKey
     );
 }
-export function mint() {}
+
+export function mint() {
+    throw new Error('Not implemented');
+}
 
 /**
  * Build hera tx object to be send to Aergo Connect for signing and broadcasting
@@ -101,6 +145,7 @@ export function mint() {}
  * @param {object} hera Herajs client
  * @param {string} txSender Aergo address of account signing the transaction
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
+ * @param {json} bridgeAergoAbi Abi of Aergo bridge contract
  * @param {string} receiverAergoAddr Aergo address that receive minted/unfeezed tokens
  * @param {proof} proof Result of eth_getProof 
  * @return {object} Herajs tx object
@@ -111,61 +156,46 @@ export async function buildUnfreezeTx(
     txSender,
     bridgeEthAddr,
     bridgeAergoAddr, 
+    bridgeAergoAbi,
     receiverAergoAddr, 
     aergoErc20Addr,
 ) {
-    let proof = await buildLockProof(
+    const proof = await buildLockProof(
         web3, hera, receiverAergoAddr, aergoErc20Addr, bridgeEthAddr, 
         bridgeAergoAddr
     );
-    let ap = proof.storageProof[0].proof;
-    let balance = {_bignum:proof.storageProof[0].value};
-    let args = [receiverAergoAddr, balance, ap];
-    let abi = await hera.getABI(bridgeAergoAddr);
-    let contract = Contract.atAddress(bridgeAergoAddr);
-    contract.loadAbi(abi);
-    let builtTx = await contract.unfreeze(...args).asTransaction({
+    const ap = proof.storageProof[0].proof;
+    const balance = {_bignum:proof.storageProof[0].value};
+    const args = [receiverAergoAddr, balance, ap];
+    const contract = Contract.atAddress(bridgeAergoAddr);
+    contract.loadAbi(bridgeAergoAbi);
+    const builtTx = await contract.unfreeze(...args).asTransaction({
         from: txSender,
     });
-    return builtTx
+    return builtTx;
 }
 
-export function burn() {}
-export function buildBurnProof() {}
-export function unlock() {}
 
+/* Ethereum -> Aergo pegged ARC1 token transfer */
+/* ============================================ */
 
-/**
- * Get the unfreezeable and pending amounts transfering through the bridge
- * @param {object} web3 Provider (metamask or other web3 compatible)
- * @param {object} hera Herajs client
- * @param {string} bridgeEthAddr 0x Address of bridge contrat
- * @param {string} bridgeAergoAddr Aergo address of bridge contract
- * @param {*} ethTrieKey 
- * @param {*} aergoStorageKey 
- * @return {string, string} Amount withdrawable now, amount pending new state root anchor
- */
-export async function unfreezeable(
-    web3,
-    hera,
-    bridgeEthAddr,
-    bridgeAergoAddr,
-    receiverAergoAddr, 
-    aergoErc20Addr, 
-) {
-    let position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
-    let accountRef = Buffer.concat([
-        Buffer.from(receiverAergoAddr, 'utf-8'), 
-        Buffer.from(aergoErc20Addr.slice(2), 'hex')
-    ]);
-    let ethTrieKey = keccak256(Buffer.concat([accountRef, position]));
-    let aergoStorageKey = Buffer.concat([
-        Buffer.from('_sv__unfreezes-'.concat(receiverAergoAddr), 'utf-8'),
-        Buffer.from(aergoErc20Addr.slice(2), 'hex')
-    ]);
-    return withdrawable(web3, hera, bridgeEthAddr, bridgeAergoAddr, ethTrieKey, aergoStorageKey)
+export function burn() {
+    throw new Error('Not implemented');
+}
+export function unlockeable() {
+    throw new Error('Not implemented');
+}
+export function buildBurnProof() {
+    throw new Error('Not implemented');
+}
+export function unlock() {
+    throw new Error('Not implemented');
 }
 
+
+
+/* Ethereum -> Aergo helpers */
+/* ========================= */
 
 /**
  * Build a deposit proof from Ethereum (Lock or Burn)
@@ -173,7 +203,7 @@ export async function unfreezeable(
  * @param {object} hera Herajs client
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
- * @param {string} trieKey Hash
+ * @param {string} ethTrieKey 0x Hash
  * @return {Promise} Promise from eth_getProof
  */
 async function buildDepositProof(
@@ -181,15 +211,16 @@ async function buildDepositProof(
     hera, 
     bridgeEthAddr, 
     bridgeAergoAddr, 
-    trieKey
+    ethTrieKey
 ) {
     const contract = Contract.atAddress(bridgeAergoAddr);
     // check last merged height
     let query = contract.queryState("_sv__anchorHeight");
-    let lastMergedHeightTo = await hera.queryContractState(query);
-    let proof = await web3.eth.getProof(bridgeEthAddr, [trieKey], lastMergedHeightTo);
+    const lastMergedHeight = await hera.queryContractState(query);
+    const proof = await web3.eth.getProof(
+        bridgeEthAddr, [ethTrieKey], lastMergedHeight);
     // TODO proof verification
-    return proof
+    return proof;
 }
 
 
@@ -199,8 +230,8 @@ async function buildDepositProof(
  * @param {object} hera Herajs client
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
- * @param {*} ethTrieKey 
- * @param {*} aergoStorageKey 
+ * @param {string} ethTrieKey 0x Hash
+ * @param {Buffer} aergoStorageKey  key storage bytes (before hashing)
  * @return {string, string} Amount withdrawable now, amount pending new state root anchor
  */
 async function withdrawable(
@@ -212,12 +243,14 @@ async function withdrawable(
     aergoStorageKey
 ) {
     // totalDeposit : total latest deposit including pending
-    let storageValue = await web3.eth.getStorageAt(bridgeEthAddr, ethTrieKey, 'latest');
-    let totalDeposit = new BigNumber(web3.utils.hexToNumberString(storageValue));
+    let storageValue = await web3.eth.getStorageAt(
+        bridgeEthAddr, ethTrieKey, 'latest');
+    const totalDeposit = new BigNumber(storageValue);
 
     // get total withdrawn and last anchor height
-    const contract = Contract.atAddress(bridgeAergoAddr);
-    let query = contract.queryState(["_sv__anchorHeight", aergoStorageKey]);
+    const aergoBridge = Contract.atAddress(bridgeAergoAddr);
+    const query = aergoBridge.queryState(
+        ["_sv__anchorHeight", aergoStorageKey]);
     let [lastAnchorHeight, totalWithdrawn] = await hera.queryContractState(query);
     if (totalWithdrawn === undefined) {
         totalWithdrawn = 0;
@@ -225,11 +258,12 @@ async function withdrawable(
     totalWithdrawn = new BigNumber(totalWithdrawn);
 
     // get anchored deposit : total deposit before the last anchor
-    storageValue = await web3.eth.getStorageAt(bridgeEthAddr, ethTrieKey, lastAnchorHeight);
-    let anchoredDeposit = new BigNumber(web3.utils.hexToNumberString(storageValue));
+    storageValue = await web3.eth.getStorageAt(
+        bridgeEthAddr, ethTrieKey, lastAnchorHeight);
+    const anchoredDeposit = new BigNumber(storageValue);
 
     // calculate withdrawable and pending
-    let withdrawableBalance = anchoredDeposit.minus(totalWithdrawn).toString(10);
-    let pending = totalDeposit.minus(anchoredDeposit).toString(10);
-    return [withdrawableBalance, pending]
+    const withdrawableBalance = anchoredDeposit.minus(totalWithdrawn).toString(10);
+    const pending = totalDeposit.minus(anchoredDeposit).toString(10);
+    return [withdrawableBalance, pending];
 }
