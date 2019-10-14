@@ -1,4 +1,5 @@
 import * as eta from '../src/ethToAergo';
+import * as ate from '../src/aergoToEth';
 import { AergoClient } from '@herajs/client';
 import { Wallet } from '@herajs/wallet';
 import Web3 from 'web3';
@@ -110,10 +111,51 @@ describe('Aergo Erc20 transfer', function() {
     });
     describe('Aergo => Ethereum', function() {
         it('Should freeze tokens', async function() {
+            this.timeout(100000);
+            const receiverEthAddr = ethAddress;
+            const txSender = aergoAddress;
+            const builtTx = await ate.buildFreezeTx(
+                txSender, amount, bridgeAergoAddr, bridgeAergoAbi, receiverEthAddr);
+            const txTracker = await aergoWallet.sendTransaction(account, builtTx);
+            const receipt = await txTracker.getReceipt();
+            assert.equal(receipt.status, 'SUCCESS');
+        });
+        it('Should become unlockeable after anchor', async function() {
+            this.timeout(100000);
+            const receiverEthAddr = ethAddress;
+            let unlockeable = "0";
+            let pending;
+            while (unlockeable === "0") {
+                try {
+                    // catch error in deposit query when no deposit was ever made before anchor
+                    [unlockeable, pending] = await ate.unlockeable(
+                        web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
+                        aergoErc20Addr
+                    );
+                } catch (error) {}
+            }
+            assert.equal(unlockeable, amount);
         });
         it('Should build freeze proof', async function() {
+            this.timeout(100000);
+            const receiverEthAddr = ethAddress;
+            const proof = await ate.buildFreezeProof(
+                web3, hera, bridgeEthAddr, bridgeAergoAddr, aergoErc20Addr,
+                receiverEthAddr
+            );
+            assert.notEqual(proof.contractProof.auditPath.length, 0);
+            assert.notEqual(proof.varProofs.length, 0);
+            assert.equal(proof.contractProof.inclusion, true)
+            assert.equal(proof.varProofs[0].inclusion, true)
         });
         it('Should unlock tokens', async function() {
+            this.timeout(100000);
+            const receiverEthAddr = ethAddress;
+            const receipt = await ate.unlock(
+                web3, hera, bridgeEthAddr, bridgeEthAbi, bridgeAergoAddr, receiverEthAddr,
+                aergoErc20Addr
+            );
+            assert.equal(receipt.status, true);
         });
     });
 });
