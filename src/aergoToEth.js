@@ -155,6 +155,42 @@ export async function unlock(
     receiverEthAddr, 
     erc20Addr
 ) {
+    let args = await buildUnlockArgs(
+        web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr, 
+        erc20Addr
+    );
+    const contract = new web3.eth.Contract(bridgeEthAbi, bridgeEthAddr);
+    return contract.methods.unlock(
+        receiverEthAddr, args.balance, args.token, args.mp, args.bitmap,
+        args.leafHeight
+    ).send(
+        {from: web3.eth.defaultAccount, gas: 300000}
+    );
+}
+
+
+/* Aergo -> Ethereum helpers */
+/* ========================= */
+
+
+/**
+ * Build arguments for unlocking assets from the Ethereum bridge contract
+ * @param {object} web3 Provider (metamask or other web3 compatible)
+ * @param {object} hera Herajs client
+ * @param {string} bridgeEthAddr 0x Address of bridge contrat
+ * @param {string} bridgeAergoAddr Aergo address of bridge contract
+ * @param {string} receiverEthAddr 0x address to receive unlocked tokens
+ * @param {string} erc20Addr 0x Address of asset
+ * @return {Array} Array or arguments useable in mycrypto
+ */
+export async function buildUnlockArgs(
+    web3,
+    hera, 
+    bridgeEthAddr,
+    bridgeAergoAddr,
+    receiverEthAddr, 
+    erc20Addr
+) {
     const proof = await buildBurnProof(
         web3, hera, bridgeEthAddr, bridgeAergoAddr, erc20Addr,
         receiverEthAddr
@@ -169,19 +205,15 @@ export async function unlock(
         Buffer.from(proof.varProofs[0].bitmap).toString('hex')
     ).padEnd(66, '0');
     const leafHeight = proof.varProofs[0].height.toString()
-
-    const contract = new web3.eth.Contract(bridgeEthAbi, bridgeEthAddr);
-    return contract.methods.unlock(
-        receiverEthAddr, totalDepositBalance, erc20Addr, ap, bitmap,
-        leafHeight
-    ).send(
-        {from: web3.eth.defaultAccount, gas: 300000}
-    );
+    return {
+        receiver: receiverEthAddr, 
+        balance: totalDepositBalance, 
+        token: erc20Addr, 
+        mp: ap, 
+        bitmap: bitmap, 
+        leafHeight: leafHeight
+    }
 }
-
-
-/* Aergo -> Ethereum helpers */
-/* ========================= */
 
 
 /**

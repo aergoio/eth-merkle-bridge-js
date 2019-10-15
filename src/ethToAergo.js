@@ -103,7 +103,7 @@ export function minteable() {
 
 
 /**
- * 
+ * Build a lock proof from Ethereum 
  * @param {object} web3 Provider (metamask or other web3 compatible)
  * @param {object} hera Herajs client
  * @param {string} receiverAergoAddr Aergo address that receive minted/unfeezed tokens
