@@ -1,6 +1,6 @@
 import Web3 from 'web3';
-import { AergoClient, Contract } from '@herajs/client';
-import * as eta from '../src/ethToAergo.js';
+import { AergoClient } from '@herajs/client';
+import {ethToAergo as eta} from 'eth-merkle-bridge-js';
 import { bridgeEthAbi } from "../test/fixtures/bridgeEthAbi";
 import { erc20Abi } from "../test/fixtures/erc20Abi";
 import { BigNumber } from "bignumber.js";

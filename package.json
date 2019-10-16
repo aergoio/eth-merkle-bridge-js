@@ -1,12 +1,12 @@
 {
-  "name": "merkle-bridge-js",
-  "version": "0.0.1",
-  "description": "Merkle Bridge JS SDK containing helper functions for interacting with the bridge",
-  "main": "index.js",
+  "name": "eth-merkle-bridge-js",
+  "version": "0.1.0",
+  "description": "Ethereum <-> Aergo Merkle Bridge JS SDK",
+  "main": "./src/index.js",
   "scripts": {
     "test": "mocha --require @babel/register --require @babel/polyfill"
   },
-  "author": "Aergo.io",
+  "author": "aergo.io",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.6.2",
