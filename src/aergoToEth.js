@@ -21,14 +21,37 @@ export function mint() {
 /* Aergo -> Ethereum pegged ERC20 token transfer */
 /* ============================================= */
 
-export function burn() {
-    throw new Error('Not implemented');
+/**
+ * Build tx to burn tokens minted by aergo bridge contract
+ * @param {string} txSender Aergo address of accoun signing the tx
+ * @param {string} amount Amount to freeze (string with 10^18 decimals)
+ * @param {string} mintedArc1Addr Aergo address of token to burn
+ * @param {string} bridgeAergoAddr Aergo address of bridge contract
+ * @param {json} bridgeAergoAbi Abi of Aergo bridge contract
+ * @param {string} receiverEthAddr 0x eth address to receive unlocked tokens
+ * @return {object} Herajs tx object
+ */
+export async function buildBurnTx(
+    txSender,
+    amount,
+    mintedArc1Addr,
+    bridgeAergoAddr, 
+    bridgeAergoAbi,
+    receiverEthAddr, 
+) {
+    const args = [receiverEthAddr.slice(2).toLowerCase(), {_bignum: amount}, mintedArc1Addr];
+    const contract = Contract.atAddress(bridgeAergoAddr);
+    contract.loadAbi(bridgeAergoAbi);
+    const builtTx = await contract.burn(...args).asTransaction({
+        from: txSender,
+    });
+    return builtTx;
 }
 
 /**
  * Build tx to freeze aergo in bridge contract
  * @param {string} txSender Aergo address of accoun signing the tx
- * @param {string} amount Amount to freeze
+ * @param {string} amount Amount to freeze (string with 10^18 decimals)
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
  * @param {json} bridgeAergoAbi Abi of Aergo bridge contract
  * @param {string} receiverEthAddr 0x eth address to receive unlocked tokens
@@ -41,7 +64,7 @@ export async function buildFreezeTx(
     bridgeAergoAbi,
     receiverEthAddr, 
 ) {
-    const args = [receiverEthAddr.slice(2), {_bignum: amount}];
+    const args = [receiverEthAddr.slice(2).toLowerCase(), {_bignum: amount}];
     const contract = Contract.atAddress(bridgeAergoAddr);
     contract.loadAbi(bridgeAergoAbi);
     const builtTx = await contract.freeze(...args).asTransaction({
@@ -59,7 +82,7 @@ export async function buildFreezeTx(
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
  * @param {string} receiverEthAddr 0x address of receiver of unlocked tokens
  * @param {string} erc20Addr 0x Address of asset
- * @return {string, string} Amount withdrawable now, amount pending new state root anchor
+ * @return {string, string} Amount withdrawable now, amount pending new state root anchor (string with 10^18 decimals)
  */
 export function unlockeable(
     web3,
@@ -72,7 +95,7 @@ export function unlockeable(
     const position = Buffer.concat(
         [Buffer.alloc(31), Buffer.from("04", 'hex')]);
     const accountRef = Buffer.concat([
-        Buffer.from(receiverEthAddr.slice(2), 'hex'), 
+        Buffer.from(receiverEthAddr.slice(2).toLowerCase(), 'hex'), 
         Buffer.from(erc20Addr.slice(2), 'hex')
     ]);
     const ethTrieKey = keccak256(Buffer.concat([accountRef, position]));
@@ -104,7 +127,7 @@ export async function buildBurnProof(
 ) {
     const accountRef = Buffer.concat([
         Buffer.from("_sv__burns-", 'utf-8'), 
-        Buffer.from(receiverEthAddr.slice(2), 'hex'),
+        Buffer.from(receiverEthAddr.slice(2).toLowerCase(), 'hex'),
         Buffer.from(erc20Addr.slice(2), 'hex')
     ]);
     return buildDepositProof(
@@ -256,7 +279,7 @@ async function buildDepositProof(
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
  * @param {string} ethTrieKey 0x Hash
  * @param {Buffer} aergoStorageKey  key storage bytes (before hashing)
- * @return {string, string} Amount withdrawable now, amount pending new state root anchor
+ * @return {string, string} Amount withdrawable now, amount pending new state root anchor (string with 10^18 decimals)
  */
 async function withdrawable(
     web3,

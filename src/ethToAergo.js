@@ -11,7 +11,7 @@ import { BigNumber } from "bignumber.js";
  * Increase approval so the bridge contract can pull assets
  * @param {object} web3 Provider (metamask or other web3 compatible)
  * @param {string} spender 0x Address able to spend on behalf of asset owner
- * @param {string} amount Spendeable amount by spender
+ * @param {string} amount Spendeable amount by spender (string with 10^18 decimals)
  * @param {string} erc20Addr 0x Address of asset 
  * @param {object} erc20Abi Erc20 ABI array
  * @return {Promise} Promise from web3js send transaction
@@ -46,7 +46,7 @@ export function increaseApproval(
  * @param {object} web3 Provider (metamask or other web3 compatible)
  * @param {string} receiverAergoAddr Aergo address that receive minted/unfeezed tokens
  * @param {string} erc20Addr 0x Address of asset
- * @param {string} amount Amount to lock
+ * @param {string} amount Amount to lock (string with 10^18 decimals)
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
  * @param {object} bridgeEthAbi Bridge ABI array
  * @return {Promise} Promise from web3js send transaction
@@ -73,7 +73,7 @@ export function lock(
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
  * @param {string} receiverAergoAddr Aergo address of receiver of unfreezed aergo tokens
  * @param {string} aergoErc20Addr 0x Address of aergo erc20
- * @return {string, string} Amount withdrawable now, amount pending new state root anchor
+ * @return {string, string} Amount withdrawable now, amount pending new state root anchor (string with 10^18 decimals)
  */
 export async function unfreezeable(
     web3,
@@ -97,8 +97,37 @@ export async function unfreezeable(
         aergoStorageKey);
 }
 
-export function minteable() {
-    throw new Error('Not implemented');
+/**
+ * Get the minteable and pending amounts transfering through the bridge
+ * @param {object} web3 Provider (metamask or other web3 compatible)
+ * @param {object} hera Herajs client
+ * @param {string} bridgeEthAddr 0x Address of bridge contrat
+ * @param {string} bridgeAergoAddr Aergo address of bridge contract
+ * @param {string} receiverAergoAddr Aergo address of receiver of unfreezed aergo tokens
+ * @param {string} erc20Addr 0x Address of erc20 token
+ * @return {string, string} Amount withdrawable now, amount pending new state root anchor (string with 10^18 decimals)
+ */
+export async function minteable(
+    web3,
+    hera,
+    bridgeEthAddr,
+    bridgeAergoAddr,
+    receiverAergoAddr, 
+    erc20Addr, 
+) {
+    // Locks is the 3rd storage variable in eth contract (counting from 0).
+    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
+    const accountRef = Buffer.concat([
+        Buffer.from(receiverAergoAddr, 'utf-8'), 
+        Buffer.from(erc20Addr.slice(2), 'hex')
+    ]);
+    const ethTrieKey = keccak256(Buffer.concat([accountRef, position]));
+    const aergoStorageKey = Buffer.concat([
+        Buffer.from('_sv__mints-'.concat(receiverAergoAddr), 'utf-8'),
+        Buffer.from(erc20Addr.slice(2), 'hex')
+    ]);
+    return withdrawable(web3, hera, bridgeEthAddr, bridgeAergoAddr, ethTrieKey,
+        aergoStorageKey);
 }
 
 
@@ -135,9 +164,42 @@ export async function buildLockProof(
     );
 }
 
-export function mint() {
-    throw new Error('Not implemented');
+/**
+ * Build hera mint tx object to be send to Aergo Connect for signing and broadcasting
+ * @param {object} web3 Provider (metamask or other web3 compatible)
+ * @param {object} hera Herajs client
+ * @param {string} txSender Aergo address of account signing the transaction
+ * @param {string} bridgeAergoAddr Aergo address of bridge contract
+ * @param {json} bridgeAergoAbi Abi of Aergo bridge contract
+ * @param {string} receiverAergoAddr Aergo address that receive minted/unfeezed tokens
+ * @param {string} erc20Addr 0x Address of erc20 token
+ * @return {object} Herajs tx object
+ */
+export async function buildMintTx(
+    web3,
+    hera, 
+    txSender,
+    bridgeEthAddr,
+    bridgeAergoAddr, 
+    bridgeAergoAbi,
+    receiverAergoAddr, 
+    erc20Addr,
+) {
+    const proof = await buildLockProof(
+        web3, hera, receiverAergoAddr, erc20Addr, bridgeEthAddr, 
+        bridgeAergoAddr
+    );
+    const ap = proof.storageProof[0].proof;
+    const balance = {_bignum:proof.storageProof[0].value};
+    const args = [receiverAergoAddr, balance, erc20Addr.slice(2).toLowerCase(), ap];
+    const contract = Contract.atAddress(bridgeAergoAddr);
+    contract.loadAbi(bridgeAergoAbi);
+    const builtTx = await contract.mint(...args).asTransaction({
+        from: txSender,
+    });
+    return builtTx;
 }
+
 
 /**
  * Build hera tx object to be send to Aergo Connect for signing and broadcasting
@@ -147,7 +209,7 @@ export function mint() {
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
  * @param {json} bridgeAergoAbi Abi of Aergo bridge contract
  * @param {string} receiverAergoAddr Aergo address that receive minted/unfeezed tokens
- * @param {proof} proof Result of eth_getProof 
+ * @param {string} erc20Addr 0x Address of aergo erc20 token
  * @return {object} Herajs tx object
  */
 export async function buildUnfreezeTx(
@@ -232,7 +294,7 @@ async function buildDepositProof(
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
  * @param {string} ethTrieKey 0x Hash
  * @param {Buffer} aergoStorageKey  key storage bytes (before hashing)
- * @return {string, string} Amount withdrawable now, amount pending new state root anchor
+ * @return {string, string} Amount withdrawable now, amount pending new state root anchor (string with 10^18 decimals)
  */
 async function withdrawable(
     web3,
