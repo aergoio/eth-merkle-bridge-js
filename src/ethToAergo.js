@@ -1,6 +1,7 @@
 import { Contract } from '@herajs/client';
 import { keccak256 } from 'web3-utils';
 import { BigNumber } from "bignumber.js";
+import { checkAergoAddress, checkEthereumAddress } from './utils';
 
 
 /* Ethereum -> Aergo ERC20 token transfer */
@@ -23,6 +24,8 @@ export function increaseApproval(
     erc20Addr, 
     erc20Abi
 ) {
+    checkEthereumAddress(spender);
+    checkEthereumAddress(erc20Addr);
     const contract = new web3.eth.Contract(erc20Abi, erc20Addr);
     let promise;
     try {
@@ -59,6 +62,9 @@ export function lock(
     bridgeEthAddr, 
     bridgeEthAbi
 ) {
+    checkAergoAddress(receiverAergoAddr);
+    checkEthereumAddress(erc20Addr);
+    checkEthereumAddress(bridgeEthAddr);
     const contract = new web3.eth.Contract(bridgeEthAbi, bridgeEthAddr);
     return contract.methods.lock(erc20Addr, amount, receiverAergoAddr).send(
         {from: web3.eth.defaultAccount, gas: 300000}
@@ -83,6 +89,10 @@ export async function unfreezeable(
     receiverAergoAddr, 
     aergoErc20Addr, 
 ) {
+    checkEthereumAddress(bridgeEthAddr);
+    checkAergoAddress(bridgeAergoAddr);
+    checkAergoAddress(receiverAergoAddr);
+    checkEthereumAddress(aergoErc20Addr);
     const position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
     const accountRef = Buffer.concat([
         Buffer.from(receiverAergoAddr, 'utf-8'), 
@@ -115,6 +125,10 @@ export async function minteable(
     receiverAergoAddr, 
     erc20Addr, 
 ) {
+    checkEthereumAddress(bridgeEthAddr);
+    checkAergoAddress(bridgeAergoAddr);
+    checkAergoAddress(receiverAergoAddr);
+    checkEthereumAddress(erc20Addr);
     // Locks is the 3rd storage variable in eth contract (counting from 0).
     const position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
     const accountRef = Buffer.concat([
@@ -149,6 +163,10 @@ export async function buildLockProof(
     bridgeEthAddr, 
     bridgeAergoAddr
 ) {
+    checkAergoAddress(receiverAergoAddr);
+    checkEthereumAddress(erc20Addr);
+    checkEthereumAddress(bridgeEthAddr);
+    checkAergoAddress(bridgeAergoAddr);
     // build lock proof in last merged height 
     // user should have waited and checked withdrawable amount
     // UI should monitor new anchor so that minting doesnt fail just after a new anchor
@@ -185,6 +203,7 @@ export async function buildMintTx(
     receiverAergoAddr, 
     erc20Addr,
 ) {
+    checkAergoAddress(txSender);
     const proof = await buildLockProof(
         web3, hera, receiverAergoAddr, erc20Addr, bridgeEthAddr, 
         bridgeAergoAddr
@@ -222,6 +241,7 @@ export async function buildUnfreezeTx(
     receiverAergoAddr, 
     aergoErc20Addr,
 ) {
+    checkAergoAddress(txSender);
     const proof = await buildLockProof(
         web3, hera, receiverAergoAddr, aergoErc20Addr, bridgeEthAddr, 
         bridgeAergoAddr

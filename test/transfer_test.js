@@ -135,8 +135,8 @@ describe('Test erc20 token transfers', function() {
             it('Should build freeze proof', async function() {
                 const receiverEthAddr = ethAddress;
                 const proof = await ate.buildFreezeProof(
-                    web3, hera, bridgeEthAddr, bridgeAergoAddr, aergoErc20Addr,
-                    receiverEthAddr
+                    web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
+                    aergoErc20Addr
                 );
                 assert.notEqual(proof.contractProof.auditPath.length, 0);
                 assert.notEqual(proof.varProofs.length, 0);
@@ -237,8 +237,8 @@ describe('Test erc20 token transfers', function() {
             it('Should build burn proof', async function() {
                 const receiverEthAddr = ethAddress;
                 const proof = await ate.buildBurnProof(
-                    web3, hera, bridgeEthAddr, bridgeAergoAddr, testErc20Addr,
-                    receiverEthAddr
+                    web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr, 
+                    testErc20Addr
                 );
                 assert.notEqual(proof.contractProof.auditPath.length, 0);
                 assert.notEqual(proof.varProofs.length, 0);

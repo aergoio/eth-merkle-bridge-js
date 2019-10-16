@@ -1,6 +1,7 @@
 import { Contract } from '@herajs/client';
 import { keccak256 } from 'web3-utils';
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js';
+import { checkAergoAddress, checkEthereumAddress } from './utils';
 
 /* Aergo -> Ethereum ARC1 token transfer */
 /* ===================================== */
@@ -39,6 +40,10 @@ export async function buildBurnTx(
     bridgeAergoAbi,
     receiverEthAddr, 
 ) {
+    checkAergoAddress(txSender);
+    checkAergoAddress(mintedArc1Addr);
+    checkAergoAddress(bridgeAergoAddr);
+    checkEthereumAddress(receiverEthAddr);
     const args = [receiverEthAddr.slice(2).toLowerCase(), {_bignum: amount}, mintedArc1Addr];
     const contract = Contract.atAddress(bridgeAergoAddr);
     contract.loadAbi(bridgeAergoAbi);
@@ -64,6 +69,9 @@ export async function buildFreezeTx(
     bridgeAergoAbi,
     receiverEthAddr, 
 ) {
+    checkAergoAddress(txSender);
+    checkAergoAddress(bridgeAergoAddr);
+    checkEthereumAddress(receiverEthAddr);
     const args = [receiverEthAddr.slice(2).toLowerCase(), {_bignum: amount}];
     const contract = Contract.atAddress(bridgeAergoAddr);
     contract.loadAbi(bridgeAergoAbi);
@@ -92,6 +100,10 @@ export function unlockeable(
     receiverEthAddr, 
     erc20Addr, 
 ) {
+    checkEthereumAddress(bridgeEthAddr);
+    checkAergoAddress(bridgeAergoAddr);
+    checkEthereumAddress(receiverEthAddr);
+    checkEthereumAddress(erc20Addr);
     const position = Buffer.concat(
         [Buffer.alloc(31), Buffer.from("04", 'hex')]);
     const accountRef = Buffer.concat([
@@ -113,8 +125,8 @@ export function unlockeable(
  * @param {object} hera Herajs client
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
- * @param {string} erc20Addr 0x Address of asset
  * @param {string} receiverEthAddr 0x address to receive unlocked tokens
+ * @param {string} erc20Addr 0x Address of asset
  * @return {Promise} Promise from herajs queryContractStateProof
  */
 export async function buildBurnProof(
@@ -122,9 +134,13 @@ export async function buildBurnProof(
     hera, 
     bridgeEthAddr, 
     bridgeAergoAddr, 
-    erc20Addr, 
     receiverEthAddr, 
+    erc20Addr, 
 ) {
+    checkEthereumAddress(bridgeEthAddr);
+    checkAergoAddress(bridgeAergoAddr);
+    checkEthereumAddress(receiverEthAddr);
+    checkEthereumAddress(erc20Addr);
     const accountRef = Buffer.concat([
         Buffer.from("_sv__burns-", 'utf-8'), 
         Buffer.from(receiverEthAddr.slice(2).toLowerCase(), 'hex'),
@@ -140,8 +156,8 @@ export async function buildBurnProof(
  * @param {object} hera Herajs client
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
- * @param {string} aergoErc20Addr 0x Address of aergo erc20
  * @param {string} receiverEthAddr 0x address to receive unlocked tokens
+ * @param {string} aergoErc20Addr 0x Address of aergo erc20
  * @return {Promise} Promise from herajs queryContractStateProof
  */
 export async function buildFreezeProof(
@@ -149,12 +165,12 @@ export async function buildFreezeProof(
     hera, 
     bridgeEthAddr, 
     bridgeAergoAddr, 
-    aergoErc20Addr, 
     receiverEthAddr, 
+    aergoErc20Addr, 
 ) {
     return buildBurnProof(
-        web3, hera, bridgeEthAddr, bridgeAergoAddr, aergoErc20Addr, 
-        receiverEthAddr
+        web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
+        aergoErc20Addr, 
     );
 }
 
@@ -215,8 +231,9 @@ export async function buildUnlockArgs(
     erc20Addr
 ) {
     const proof = await buildBurnProof(
-        web3, hera, bridgeEthAddr, bridgeAergoAddr, erc20Addr,
-        receiverEthAddr
+        web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr, 
+        erc20Addr,
+        
     )
     const totalDepositBalance = proof.varProofs[0].value
     const ap = proof.varProofs[0].auditPath.map(function(proofNode) {
