@@ -1,6 +1,6 @@
 ## Example usage of merkle-bridge-js sdk to transfer assets across bridge using Metamask and AergoConnect wallets.
 
-```sh
+```console
     npm install
     npm run dev
 ```

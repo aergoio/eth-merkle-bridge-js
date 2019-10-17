@@ -1,6 +1,5 @@
 node_modules/
 .cache/
-.babelrc
 .git2/
 package-lock.json
 example/dist/

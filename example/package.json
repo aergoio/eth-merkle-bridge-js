@@ -8,11 +8,12 @@
   },
   "author": "",
   "license": "MIT",
+  "homepage": "https://github.com/aergoio/eth-merkle-bridge-js",
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "parcel-bundler": "^1.12.4"
   },
   "dependencies": {
-    "eth-merkle-bridge-js": "file:.."
+    "eth-merkle-bridge-js": "^0.1.0"
   }
 }
