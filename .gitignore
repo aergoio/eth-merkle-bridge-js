@@ -3,3 +3,4 @@ node_modules/
 .git2/
 package-lock.json
 example/dist/
+.pytest_cache/

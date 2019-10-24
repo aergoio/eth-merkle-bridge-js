@@ -45,10 +45,15 @@ export async function getEthAnchorStatus(
     checkAergoAddress(bridgeAergoAddr);
     const aergoBridge = Contract.atAddress(bridgeAergoAddr);
     const query = aergoBridge.queryState(
-        ["_sv__anchorHeight", "_sv__tAnchor"]);
-    const [lastAnchorHeight, tAnchor] = await hera.queryContractState(query);
+        ["_sv__anchorHeight", "_sv__tAnchor", "_sv__tFinal"]);
+    const [lastAnchorHeight, tAnchor, tFinal] = await hera.queryContractState(query);
     const bestHeight = await web3.eth.getBlockNumber()
-    return [lastAnchorHeight, tAnchor, bestHeight]
+    return {
+        lastAnchorHeight: lastAnchorHeight,
+        tAnchor: tAnchor,
+        tFinal: tFinal,
+        bestHeight: bestHeight
+    }
 }
 
 
@@ -71,7 +76,15 @@ export async function getAergoAnchorStatus(
     const tAnchorStorage = await web3.eth.getStorageAt(
         bridgeEthAddr, 9, 'latest');
     const tAnchor = new BigNumber(tAnchorStorage).toNumber()
+    const tFinalStorage = await web3.eth.getStorageAt(
+        bridgeEthAddr, 10, 'latest');
+    const tFinal = new BigNumber(tFinalStorage).toNumber()
     const head = await hera.blockchain()
     const bestHeight = head.bestHeight
-    return [lastAnchorHeight, tAnchor, bestHeight]
+    return {
+        lastAnchorHeight: lastAnchorHeight,
+        tAnchor: tAnchor,
+        tFinal: tFinal,
+        bestHeight: bestHeight
+    }
 }

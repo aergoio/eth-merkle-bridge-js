@@ -16,13 +16,15 @@ describe('Test util functions', function() {
     });
     it('Should query Eth anchor status', async function() {
         const status = await getEthAnchorStatus(web3, hera, bridgeAergoAddr);
-        assert.deepStrictEqual(status[0] <= status[2], true)
-        assert.deepStrictEqual(status[1] > 0, true)
+        assert.deepStrictEqual(status.lastAnchorHeight <= status.bestHeight, true)
+        assert.deepStrictEqual(status.tAnchor > 0, true)
+        assert.deepStrictEqual(status.tFinal > 0, true)
     });
     it('Should query Aergo anchor status', async function() {
         const status = await getAergoAnchorStatus(web3, hera, bridgeEthAddr);
-        assert.deepStrictEqual(status[0] <= status[2], true)
-        assert.deepStrictEqual(status[1] > 0, true)
+        assert.deepStrictEqual(status.lastAnchorHeight <= status.bestHeight, true)
+        assert.deepStrictEqual(status.tAnchor > 0, true)
+        assert.deepStrictEqual(status.tFinal > 0, true)
     });
 });
         
