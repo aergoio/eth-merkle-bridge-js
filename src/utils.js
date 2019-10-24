@@ -1,4 +1,6 @@
 import bs58check from "bs58check";
+import { Contract } from '@herajs/client';
+import BigNumber from "bignumber.js";
 
 export function checkEthereumAddress(addr) {
     if (addr.substring(0,2) !== "0x") {
@@ -25,4 +27,51 @@ export function checkAergoAddress(addr) {
     } catch (error) {
         throw new Error("Invalid Aergo address");
     }
+}
+
+
+/**
+ * Get the anchoring status of Ethereum to Aergo
+ * @param {object} web3 Provider (metamask or other web3 compatible)
+ * @param {object} hera Herajs client
+ * @param {string} bridgeAergoAddr Aergo address of bridge contract
+ * @return {number, number, number} last anchor height on aergo, anchoring periode, eth longest chain height
+ */
+export async function getEthAnchorStatus(
+    web3, 
+    hera,
+    bridgeAergoAddr
+) {
+    checkAergoAddress(bridgeAergoAddr);
+    const aergoBridge = Contract.atAddress(bridgeAergoAddr);
+    const query = aergoBridge.queryState(
+        ["_sv__anchorHeight", "_sv__tAnchor"]);
+    const [lastAnchorHeight, tAnchor] = await hera.queryContractState(query);
+    const bestHeight = await web3.eth.getBlockNumber()
+    return [lastAnchorHeight, tAnchor, bestHeight]
+}
+
+
+/**
+ * Get the anchoring status of Aergo to Ethereum
+ * @param {object} web3 Provider (metamask or other web3 compatible)
+ * @param {object} hera Herajs client
+ * @param {string} bridgeEthAddr Ethereum address of bridge contract
+ * @return {number, number, number} last anchor height on eth, anchoring periode, aergo longest chain height
+ */
+export async function getAergoAnchorStatus(
+    web3, 
+    hera,
+    bridgeEthAddr
+) {
+    checkEthereumAddress(bridgeEthAddr);
+    const lastAnchorHeightStorage = await web3.eth.getStorageAt(
+        bridgeEthAddr, 1, 'latest');
+    const lastAnchorHeight = new BigNumber(lastAnchorHeightStorage).toNumber()
+    const tAnchorStorage = await web3.eth.getStorageAt(
+        bridgeEthAddr, 9, 'latest');
+    const tAnchor = new BigNumber(tAnchorStorage).toNumber()
+    const head = await hera.blockchain()
+    const bestHeight = head.bestHeight
+    return [lastAnchorHeight, tAnchor, bestHeight]
 }

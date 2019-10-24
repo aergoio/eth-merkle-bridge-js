@@ -7,7 +7,7 @@ import { bridgeEthAbi } from "./fixtures/bridgeEthAbi";
 import { erc20Abi } from "./fixtures/erc20Abi";
 import { BigNumber } from "bignumber.js";
 
-var assert = require('assert');
+var assert = require('assert').strict;
 
 let web3;
 let aergoWallet;
@@ -43,6 +43,7 @@ describe('Test erc20 token transfers', function() {
         // Aergo wallet replaces aergo connect for testing
         aergoWallet = new Wallet();
         const chainId = await hera.getChainIdHash('base58');
+        //console.log(chainId)
         aergoWallet.useChain({
             chainId: chainId,
             nodeUrl: '127.0.0.1:7845'
@@ -60,7 +61,7 @@ describe('Test erc20 token transfers', function() {
             it('Should increase approval', async function() {
                 const receipt = await eta.increaseApproval(
                     web3, bridgeEthAddr, amount, aergoErc20Addr, erc20Abi);
-                assert.equal(receipt.status, true);
+                assert.deepStrictEqual(receipt.status, true);
             });
             it('Should lock tokens', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -68,7 +69,7 @@ describe('Test erc20 token transfers', function() {
                     web3, receiverAergoAddr, aergoErc20Addr, amount, bridgeEthAddr,
                     bridgeEthAbi
                 );
-                assert.equal(receipt.status, true);
+                assert.deepStrictEqual(receipt.status, true);
             });
             it('Should become unfreezeable after anchor', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -83,7 +84,7 @@ describe('Test erc20 token transfers', function() {
                         );
                     } catch (error) {}
                 }
-                assert.equal(unfreezeable, amount);
+                assert.deepStrictEqual(unfreezeable, amount);
             });
             it('Should build lock proof', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -91,8 +92,8 @@ describe('Test erc20 token transfers', function() {
                     web3, hera, receiverAergoAddr, aergoErc20Addr, bridgeEthAddr, 
                     bridgeAergoAddr
                 );
-                assert.notEqual(proof.accountProof.length, 0);
-                assert.notEqual(proof.storageProof.length, 0);
+                assert.notStrictEqual(proof.accountProof.length, 0);
+                assert.notStrictEqual(proof.storageProof.length, 0);
             });
             it('Should unfreeze tokens', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -103,8 +104,8 @@ describe('Test erc20 token transfers', function() {
                 );
                 const txTracker = await aergoWallet.sendTransaction(account, builtTx);
                 const receipt = await txTracker.getReceipt();
-                assert.equal(receipt.status, 'SUCCESS');
-                assert.equal(receipt.result, `{"_bignum":"${amount}"}`);
+                assert.deepStrictEqual(receipt.status, 'SUCCESS');
+                assert.deepStrictEqual(receipt.result, `{"_bignum":"${amount}"}`);
             });
         });
         describe('Aergo => Ethereum', function() {
@@ -115,7 +116,7 @@ describe('Test erc20 token transfers', function() {
                     txSender, amount, bridgeAergoAddr, bridgeAergoAbi, receiverEthAddr);
                 const txTracker = await aergoWallet.sendTransaction(account, builtTx);
                 const receipt = await txTracker.getReceipt();
-                assert.equal(receipt.status, 'SUCCESS');
+                assert.deepStrictEqual(receipt.status, 'SUCCESS');
             });
             it('Should become unlockeable after anchor', async function() {
                 const receiverEthAddr = ethAddress;
@@ -130,7 +131,7 @@ describe('Test erc20 token transfers', function() {
                         );
                     } catch (error) {}
                 }
-                assert.equal(unlockeable, amount);
+                assert.deepStrictEqual(unlockeable, amount);
             });
             it('Should build freeze proof', async function() {
                 const receiverEthAddr = ethAddress;
@@ -138,10 +139,10 @@ describe('Test erc20 token transfers', function() {
                     web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
                     aergoErc20Addr
                 );
-                assert.notEqual(proof.contractProof.auditPath.length, 0);
-                assert.notEqual(proof.varProofs.length, 0);
-                assert.equal(proof.contractProof.inclusion, true)
-                assert.equal(proof.varProofs[0].inclusion, true)
+                assert.notStrictEqual(proof.contractProof.auditPath.length, 0);
+                assert.notStrictEqual(proof.varProofs.length, 0);
+                assert.deepStrictEqual(proof.contractProof.inclusion, true)
+                assert.deepStrictEqual(proof.varProofs[0].inclusion, true)
             });
             it('Should unlock tokens', async function() {
                 const receiverEthAddr = ethAddress;
@@ -149,7 +150,7 @@ describe('Test erc20 token transfers', function() {
                     web3, hera, bridgeEthAddr, bridgeEthAbi, bridgeAergoAddr, receiverEthAddr,
                     aergoErc20Addr
                 );
-                assert.equal(receipt.status, true);
+                assert.deepStrictEqual(receipt.status, true);
             });
         });
     });
@@ -158,7 +159,7 @@ describe('Test erc20 token transfers', function() {
             it('Should increase approval', async function() {
                 const receipt = await eta.increaseApproval(
                     web3, bridgeEthAddr, amount, testErc20Addr, erc20Abi);
-                assert.equal(receipt.status, true);
+                assert.deepStrictEqual(receipt.status, true);
             });
             it('Should lock tokens', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -166,7 +167,7 @@ describe('Test erc20 token transfers', function() {
                     web3, receiverAergoAddr, testErc20Addr, amount, bridgeEthAddr,
                     bridgeEthAbi
                 );
-                assert.equal(receipt.status, true);
+                assert.deepStrictEqual(receipt.status, true);
             });
             it('Should become minteable after anchor', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -181,7 +182,7 @@ describe('Test erc20 token transfers', function() {
                         );
                     } catch (error) {}
                 }
-                assert.equal(minteable, amount);
+                assert.deepStrictEqual(minteable, amount);
             });
             it('Should build lock proof', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -189,8 +190,8 @@ describe('Test erc20 token transfers', function() {
                     web3, hera, receiverAergoAddr, testErc20Addr, bridgeEthAddr, 
                     bridgeAergoAddr
                 );
-                assert.notEqual(proof.accountProof.length, 0);
-                assert.notEqual(proof.storageProof.length, 0);
+                assert.notStrictEqual(proof.accountProof.length, 0);
+                assert.notStrictEqual(proof.storageProof.length, 0);
             });
             it('Should mint tokens', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -203,8 +204,8 @@ describe('Test erc20 token transfers', function() {
                 const receipt = await txTracker.getReceipt();
                 // the minted token address is returned by the mint transaction
                 peggedTestErc20Addr = JSON.parse(receipt.result)[0]
-                assert.equal(receipt.status, 'SUCCESS');
-                assert.equal(receipt.result, `["${peggedTestErc20Addr}",{"_bignum":"${amount}"}]`);
+                assert.deepStrictEqual(receipt.status, 'SUCCESS');
+                assert.deepStrictEqual(receipt.result, `["${peggedTestErc20Addr}",{"_bignum":"${amount}"}]`);
             });
         });
         describe('Aergo => Ethereum', function() {
@@ -217,7 +218,7 @@ describe('Test erc20 token transfers', function() {
                 );
                 const txTracker = await aergoWallet.sendTransaction(account, builtTx);
                 const receipt = await txTracker.getReceipt();
-                assert.equal(receipt.status, 'SUCCESS');
+                assert.deepStrictEqual(receipt.status, 'SUCCESS');
             });
             it('Should become unlockeable after anchor', async function() {
                 const receiverEthAddr = ethAddress;
@@ -232,7 +233,7 @@ describe('Test erc20 token transfers', function() {
                         );
                     } catch (error) {}
                 }
-                assert.equal(unlockeable, amount);
+                assert.deepStrictEqual(unlockeable, amount);
             });
             it('Should build burn proof', async function() {
                 const receiverEthAddr = ethAddress;
@@ -240,10 +241,10 @@ describe('Test erc20 token transfers', function() {
                     web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr, 
                     testErc20Addr
                 );
-                assert.notEqual(proof.contractProof.auditPath.length, 0);
-                assert.notEqual(proof.varProofs.length, 0);
-                assert.equal(proof.contractProof.inclusion, true)
-                assert.equal(proof.varProofs[0].inclusion, true)
+                assert.notStrictEqual(proof.contractProof.auditPath.length, 0);
+                assert.notStrictEqual(proof.varProofs.length, 0);
+                assert.deepStrictEqual(proof.contractProof.inclusion, true)
+                assert.deepStrictEqual(proof.varProofs[0].inclusion, true)
             });
             it('Should unlock tokens', async function() {
                 const receiverEthAddr = ethAddress;
@@ -251,7 +252,7 @@ describe('Test erc20 token transfers', function() {
                     web3, hera, bridgeEthAddr, bridgeEthAbi, bridgeAergoAddr, receiverEthAddr,
                     testErc20Addr
                 );
-                assert.equal(receipt.status, true);
+                assert.deepStrictEqual(receipt.status, true);
             });
         });
     });

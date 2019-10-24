@@ -8,6 +8,7 @@
   },
   "author": "aergo.io",
   "license": "MIT",
+  "homepage": "https://github.com/aergoio/eth-merkle-bridge-js",
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/polyfill": "^7.6.0",

@@ -94,6 +94,10 @@ const tx = await aergoConnectCall(
 #### ARC1 Aergo native tokens
 - TODO
 
+#### Utils
+- utils.getEthAnchorStatus()
+- utils.getAergoAnchorStatus()
+
 ### Contribute
 
 #### Setup
