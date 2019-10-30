@@ -1,4 +1,4 @@
-import { getEthAnchorStatus, getAergoAnchorStatus } from '../src/utils';
+import { getEthAnchorStatus, getAergoAnchorStatus, getAergoUnfreezeFee } from '../src/utils';
 import { AergoClient } from '@herajs/client';
 import Web3 from 'web3';
 
@@ -25,6 +25,10 @@ describe('Test util functions', function() {
         assert.deepStrictEqual(status.lastAnchorHeight <= status.bestHeight, true)
         assert.deepStrictEqual(status.tAnchor > 0, true)
         assert.deepStrictEqual(status.tFinal > 0, true)
+    });
+    it('Should query unfreeze fee', async function() {
+        const unfreezeFee = await getAergoUnfreezeFee(hera, bridgeAergoAddr);
+        assert.deepStrictEqual(unfreezeFee, "1000")
     });
 });
         

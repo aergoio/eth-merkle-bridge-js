@@ -88,3 +88,20 @@ export async function getAergoAnchorStatus(
         bestHeight: bestHeight
     }
 }
+
+/**
+ * Get the unfreeze fee to unfreeze aergo native
+ * @param {object} hera Herajs client
+ * @param {string} bridgeAergoAddr Aergo address of bridge contract
+ * @return {string} unfreeze fee
+ */
+export async function getAergoUnfreezeFee(
+    hera,
+    bridgeAergoAddr,
+) {
+    checkAergoAddress(bridgeAergoAddr);
+    const aergoBridge = Contract.atAddress(bridgeAergoAddr);
+    const query = aergoBridge.queryState(["_sv__unfreezeFee"]);
+    const unfreezeFeeBignum = await hera.queryContractState(query);
+    return unfreezeFeeBignum._bignum;
+}
