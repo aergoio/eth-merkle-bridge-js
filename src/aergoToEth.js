@@ -104,8 +104,9 @@ export function unlockeable(
     checkAergoAddress(bridgeAergoAddr);
     checkEthereumAddress(receiverEthAddr);
     checkEthereumAddress(erc20Addr);
+    // _unlocks is the 7th var in EthMerkleBridge contract
     const position = Buffer.concat(
-        [Buffer.alloc(31), Buffer.from("04", 'hex')]);
+        [Buffer.alloc(31), Buffer.from("06", 'hex')]);
     const accountRef = Buffer.concat([
         Buffer.from(receiverEthAddr.slice(2).toLowerCase(), 'hex'), 
         Buffer.from(erc20Addr.slice(2), 'hex')

@@ -93,7 +93,8 @@ export async function unfreezeable(
     checkAergoAddress(bridgeAergoAddr);
     checkAergoAddress(receiverAergoAddr);
     checkEthereumAddress(aergoErc20Addr);
-    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
+    // _locks is the 6th var in EthMerkleBridge contract
+    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("05", 'hex')]);
     const accountRef = Buffer.concat([
         Buffer.from(receiverAergoAddr, 'utf-8'), 
         Buffer.from(aergoErc20Addr.slice(2), 'hex')
@@ -129,8 +130,8 @@ export async function minteable(
     checkAergoAddress(bridgeAergoAddr);
     checkAergoAddress(receiverAergoAddr);
     checkEthereumAddress(erc20Addr);
-    // Locks is the 3rd storage variable in eth contract (counting from 0).
-    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
+    // _locks is the 6th var in EthMerkleBridge contract
+    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("05", 'hex')]);
     const accountRef = Buffer.concat([
         Buffer.from(receiverAergoAddr, 'utf-8'), 
         Buffer.from(erc20Addr.slice(2), 'hex')
@@ -170,7 +171,8 @@ export async function buildLockProof(
     // build lock proof in last merged height 
     // user should have waited and checked withdrawable amount
     // UI should monitor new anchor so that minting doesnt fail just after a new anchor
-    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("03", 'hex')]);
+    // _locks is the 6th var in EthMerkleBridge contract
+    const position = Buffer.concat([Buffer.alloc(31), Buffer.from("05", 'hex')]);
     const accountRef = Buffer.concat([
         Buffer.from(receiverAergoAddr, 'utf-8'), 
         Buffer.from(erc20Addr.slice(2), 'hex')

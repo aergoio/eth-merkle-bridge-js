@@ -74,10 +74,10 @@ export async function getAergoAnchorStatus(
         bridgeEthAddr, 1, 'latest');
     const lastAnchorHeight = new BigNumber(lastAnchorHeightStorage).toNumber()
     const tAnchorStorage = await web3.eth.getStorageAt(
-        bridgeEthAddr, 9, 'latest');
+        bridgeEthAddr, 2, 'latest');
     const tAnchor = new BigNumber(tAnchorStorage).toNumber()
     const tFinalStorage = await web3.eth.getStorageAt(
-        bridgeEthAddr, 10, 'latest');
+        bridgeEthAddr, 3, 'latest');
     const tFinal = new BigNumber(tFinalStorage).toNumber()
     const head = await hera.blockchain()
     const bestHeight = head.bestHeight
