@@ -9,7 +9,7 @@ import { checkAergoAddress, checkEthereumAddress } from './utils';
 export function lock() {
     throw new Error('Not implemented');
 }
-export function minteable() {
+export function mintable() {
     throw new Error('Not implemented');
 }
 export function buildLockProof() {
@@ -83,7 +83,7 @@ export async function buildFreezeTx(
 }
 
 /**
- * Get the unlockeable and pending amounts transfering through the bridge
+ * Get the unlockable and pending amounts transfering through the bridge
  * @param {object} web3 Provider (metamask or other web3 compatible)
  * @param {object} hera Herajs client
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
@@ -92,7 +92,7 @@ export async function buildFreezeTx(
  * @param {string} erc20Addr 0x Address of asset
  * @return {string, string} Amount withdrawable now, amount pending new state root anchor (string with 10^18 decimals)
  */
-export function unlockeable(
+export function unlockable(
     web3,
     hera,
     bridgeEthAddr,
@@ -221,7 +221,7 @@ export async function unlock(
  * @param {string} bridgeAergoAddr Aergo address of bridge contract
  * @param {string} receiverEthAddr 0x address to receive unlocked tokens
  * @param {string} erc20Addr 0x Address of asset
- * @return {Array} Array or arguments useable in mycrypto
+ * @return {Array} Array of arguments usable in mycrypto
  */
 export async function buildUnlockArgs(
     web3,

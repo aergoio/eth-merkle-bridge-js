@@ -37,8 +37,8 @@ const receipt = await eta.lock(
     bridgeEthAbi
 );
 
-// Check unfreezeable and pending balances
-let [unfreezeable, pending] = await eta.unfreezeable(
+// Check unfreezable and pending balances
+let [unfreezable, pending] = await eta.unfreezable(
     web3, hera, bridgeEthAddr, bridgeAergoAddr,
     receiverAergoAddr, aergoErc20Addr
 );
@@ -71,24 +71,24 @@ const tx = await aergoConnectCall(
 ##### Send aergo ERC20 from Ethereum to Aergo
 - ethToAergo.increaseApproval()
 - ethToAergo.lock()
-- ethToAergo.unfreezeable()
+- ethToAergo.unfreezable()
 - ethToAergo.buildUnfreezeTx()
 
 ##### Send native(unfreezed) aergo from Aergo back to Ethereum (Erc20 form)
 - aergoToEth.buildFreezeTx()
-- aergoToEth.unlockeable()
+- aergoToEth.unlockable()
 - aergoToEth.unlock()
 
 #### Other ERC20 tokens
 ##### Send ERC20 from Ethereum to Aergo
 - ethToAergo.increaseApproval()
 - ethToAergo.lock()
-- ethToAergo.minteable()
+- ethToAergo.mintable()
 - ethToAergo.buildMintTx()
 
 ##### Send minted token from Aergo back to Ethereum (Erc20 form)
 - aergoToEth.buildBurnTx()
-- aergoToEth.unlockeable()
+- aergoToEth.unlockable()
 - aergoToEth.unlock()
 
 #### ARC1 Aergo native tokens

@@ -12,7 +12,7 @@ import { checkAergoAddress, checkEthereumAddress } from './utils';
  * Increase approval so the bridge contract can pull assets
  * @param {object} web3 Provider (metamask or other web3 compatible)
  * @param {string} spender 0x Address able to spend on behalf of asset owner
- * @param {string} amount Spendeable amount by spender (string with 10^18 decimals)
+ * @param {string} amount Spendable amount by spender (string with 10^18 decimals)
  * @param {string} erc20Addr 0x Address of asset 
  * @param {object} erc20Abi Erc20 ABI array
  * @return {Promise} Promise from web3js send transaction
@@ -72,7 +72,7 @@ export function lock(
 }
 
 /**
- * Get the unfreezeable and pending amounts transfering through the bridge
+ * Get the unfreezable and pending amounts transfering through the bridge
  * @param {object} web3 Provider (metamask or other web3 compatible)
  * @param {object} hera Herajs client
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
@@ -81,7 +81,7 @@ export function lock(
  * @param {string} aergoErc20Addr 0x Address of aergo erc20
  * @return {string, string} Amount withdrawable now, amount pending new state root anchor (string with 10^18 decimals)
  */
-export async function unfreezeable(
+export async function unfreezable(
     web3,
     hera,
     bridgeEthAddr,
@@ -109,7 +109,7 @@ export async function unfreezeable(
 }
 
 /**
- * Get the minteable and pending amounts transfering through the bridge
+ * Get the mintable and pending amounts transfering through the bridge
  * @param {object} web3 Provider (metamask or other web3 compatible)
  * @param {object} hera Herajs client
  * @param {string} bridgeEthAddr 0x Address of bridge contrat
@@ -118,7 +118,7 @@ export async function unfreezeable(
  * @param {string} erc20Addr 0x Address of erc20 token
  * @return {string, string} Amount withdrawable now, amount pending new state root anchor (string with 10^18 decimals)
  */
-export async function minteable(
+export async function mintable(
     web3,
     hera,
     bridgeEthAddr,
@@ -266,7 +266,7 @@ export async function buildUnfreezeTx(
 export function burn() {
     throw new Error('Not implemented');
 }
-export function unlockeable() {
+export function unlockable() {
     throw new Error('Not implemented');
 }
 export function buildBurnProof() {

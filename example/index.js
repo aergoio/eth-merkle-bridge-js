@@ -109,17 +109,17 @@ document.getElementById("unfreeze").onclick = async () => {
     }, 2000)
 }
 
-document.getElementById("unfreezeable").onclick = async () => {
+document.getElementById("unfreezable").onclick = async () => {
     const receiverAergoAddr = document.getElementById("receiver").value;
     let blockoWeb3 = new Web3("http://localhost:8545");
-    let status = await eta.unfreezeable(
+    let status = await eta.unfreezable(
         blockoWeb3, hera, bridgeEthAddr, bridgeAergoAddr,
         receiverAergoAddr, aergoErc20Addr
     );
     console.log(status);
     let withdrawable = document.createElement('div');
     let pending = document.createElement('div');
-    withdrawable.innerHTML += "Unfreezeable now: " + BigNumber(status[0]).dividedBy(10**18).toString();
+    withdrawable.innerHTML += "Unfreezable now: " + BigNumber(status[0]).dividedBy(10**18).toString();
     pending.innerHTML += "Pending new bridge anchor: " + BigNumber(status[1]).dividedBy(10**18).toString();
     document.getElementById('info').appendChild(withdrawable);
     document.getElementById('info').appendChild(pending);

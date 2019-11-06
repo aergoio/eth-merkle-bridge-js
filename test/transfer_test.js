@@ -71,20 +71,20 @@ describe('Test erc20 token transfers', function() {
                 );
                 assert.deepStrictEqual(receipt.status, true);
             });
-            it('Should become unfreezeable after anchor', async function() {
+            it('Should become unfreezable after anchor', async function() {
                 const receiverAergoAddr = aergoAddress;
-                let unfreezeable = "0";
+                let unfreezable = "0";
                 let pending;
-                while (unfreezeable === "0") {
+                while (unfreezable === "0") {
                     try {
                         // catch error in deposit query when no deposit was ever made before anchor
-                        [unfreezeable, pending] = await eta.unfreezeable(
+                        [unfreezable, pending] = await eta.unfreezable(
                             web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverAergoAddr,
                             aergoErc20Addr
                         );
                     } catch (error) {}
                 }
-                assert.deepStrictEqual(unfreezeable, amount);
+                assert.deepStrictEqual(unfreezable, amount);
             });
             it('Should build lock proof', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -118,20 +118,20 @@ describe('Test erc20 token transfers', function() {
                 const receipt = await txTracker.getReceipt();
                 assert.deepStrictEqual(receipt.status, 'SUCCESS');
             });
-            it('Should become unlockeable after anchor', async function() {
+            it('Should become unlockable after anchor', async function() {
                 const receiverEthAddr = ethAddress;
-                let unlockeable = "0";
+                let unlockable = "0";
                 let pending;
-                while (unlockeable === "0") {
+                while (unlockable === "0") {
                     try {
                         // catch error in deposit query when no deposit was ever made before anchor
-                        [unlockeable, pending] = await ate.unlockeable(
+                        [unlockable, pending] = await ate.unlockable(
                             web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
                             aergoErc20Addr
                         );
                     } catch (error) {}
                 }
-                assert.deepStrictEqual(unlockeable, amount);
+                assert.deepStrictEqual(unlockable, amount);
             });
             it('Should build freeze proof', async function() {
                 const receiverEthAddr = ethAddress;
@@ -169,20 +169,20 @@ describe('Test erc20 token transfers', function() {
                 );
                 assert.deepStrictEqual(receipt.status, true);
             });
-            it('Should become minteable after anchor', async function() {
+            it('Should become mintable after anchor', async function() {
                 const receiverAergoAddr = aergoAddress;
-                let minteable = "0";
+                let mintable = "0";
                 let pending;
-                while (minteable === "0") {
+                while (mintable === "0") {
                     try {
                         // catch error in deposit query when no deposit was ever made before anchor
-                        [minteable, pending] = await eta.minteable(
+                        [mintable, pending] = await eta.mintable(
                             web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverAergoAddr,
                             testErc20Addr
                         );
                     } catch (error) {}
                 }
-                assert.deepStrictEqual(minteable, amount);
+                assert.deepStrictEqual(mintable, amount);
             });
             it('Should build lock proof', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -220,20 +220,20 @@ describe('Test erc20 token transfers', function() {
                 const receipt = await txTracker.getReceipt();
                 assert.deepStrictEqual(receipt.status, 'SUCCESS');
             });
-            it('Should become unlockeable after anchor', async function() {
+            it('Should become unlockable after anchor', async function() {
                 const receiverEthAddr = ethAddress;
-                let unlockeable = "0";
+                let unlockable = "0";
                 let pending;
-                while (unlockeable === "0") {
+                while (unlockable === "0") {
                     try {
                         // catch error in deposit query when no deposit was ever made before anchor
-                        [unlockeable, pending] = await ate.unlockeable(
+                        [unlockable, pending] = await ate.unlockable(
                             web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
                             testErc20Addr
                         );
                     } catch (error) {}
                 }
-                assert.deepStrictEqual(unlockeable, amount);
+                assert.deepStrictEqual(unlockable, amount);
             });
             it('Should build burn proof', async function() {
                 const receiverEthAddr = ethAddress;
