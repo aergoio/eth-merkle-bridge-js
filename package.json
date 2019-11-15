@@ -10,9 +10,9 @@
   "license": "MIT",
   "homepage": "https://github.com/aergoio/eth-merkle-bridge-js",
   "devDependencies": {
-    "@babel/core": "^7.6.4",
+    "@babel/core": "^7.7.2",
     "@babel/polyfill": "^7.6.0",
-    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-env": "^7.7.1",
     "@babel/register": "^7.6.2",
     "@herajs/wallet": "^0.13.2",
     "mocha": "^6.2.0"

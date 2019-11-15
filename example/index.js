@@ -1,9 +1,12 @@
 import Web3 from 'web3';
 import { AergoClient } from '@herajs/client';
-import {ethToAergo as eta} from 'eth-merkle-bridge-js';
+import { ethToAergo as eta } from 'eth-merkle-bridge-js';
 import { bridgeEthAbi } from "../test/fixtures/bridgeEthAbi";
 import { erc20Abi } from "../test/fixtures/erc20Abi";
 import { BigNumber } from "bignumber.js";
+
+const { AccountRef } = require('./unfreeze_service_pb.js');
+const { UnfreezeServiceClient } = require('./unfreeze_service_grpc_web_pb.js');
 
 // aergo-connect helper
 function aergoConnectCall(action, responseType, data) {
@@ -123,4 +126,25 @@ document.getElementById("unfreezable").onclick = async () => {
     pending.innerHTML += "Pending new bridge anchor: " + BigNumber(status[1]).dividedBy(10**18).toString();
     document.getElementById('info').appendChild(withdrawable);
     document.getElementById('info').appendChild(pending);
+}
+
+document.getElementById("unfreeze_service").onclick = async () => {
+    const receiverAergoAddr = document.getElementById("receiver").value;
+    var unfreezeService = new UnfreezeServiceClient('http://localhost:8080');
+
+    var request = new AccountRef();
+    request.setReceiver(receiverAergoAddr);
+
+    unfreezeService.requestUnfreeze(request, {}, function(err, response) {
+        let status = document.createElement('div');
+        if (response.getTxhash().length !== 0) {
+            status.innerHTML += "Request unfreeze service tx hash: " + response.getTxhash();
+        } else if (response.getError().length !== 0){
+            status.innerHTML += "Request unfreeze service error: " + response.getError();
+        } else {
+            status.innerHTML += "Unexpected unfreeze service response";
+            console.log(response)
+        }
+        document.getElementById('info').appendChild(status);
+    });
 }
