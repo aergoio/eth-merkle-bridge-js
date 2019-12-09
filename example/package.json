@@ -13,7 +13,7 @@
     "parcel-bundler": "^1.12.4"
   },
   "dependencies": {
-    "eth-merkle-bridge-js": "^0.2.0",
+    "eth-merkle-bridge-js": "^0.3.0",
     "grpc-web": "^1.0.7"
   }
 }
