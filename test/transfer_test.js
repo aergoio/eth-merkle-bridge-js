@@ -56,6 +56,34 @@ describe('Test erc20 token transfers', function() {
             password: '1234'
         });
     });
+    describe('Check exceptions', function() {
+        it('no exception raised when query withdrawable', async function() {
+            const receiverEthAddr = ethAddress;
+            const receiverAergoAddr = aergoAddress;
+            let unlockable, unfreezable, mintable, pending;
+
+            [unlockable, pending] = await ate.unlockable(
+                web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
+                aergoErc20Addr
+            );
+            assert.deepStrictEqual(unlockable, "0");
+            assert.deepStrictEqual(pending, "0");
+
+            [unfreezable, pending] = await eta.unfreezable(
+                web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverAergoAddr,
+                aergoErc20Addr
+            );
+            assert.deepStrictEqual(unfreezable, "0");
+            assert.deepStrictEqual(pending, "0");
+
+            [mintable, pending] = await eta.mintable(
+                web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverAergoAddr,
+                testErc20Addr
+            );
+            assert.deepStrictEqual(mintable, "0");
+            assert.deepStrictEqual(pending, "0");
+        });
+    });
     describe('Aergo Erc20 transfer', function() {
         describe('Ethereum => Aergo', function() {
             it('Should increase approval', async function() {
@@ -76,15 +104,13 @@ describe('Test erc20 token transfers', function() {
                 let unfreezable = "0";
                 let pending;
                 while (unfreezable === "0") {
-                    try {
-                        // catch error in deposit query when no deposit was ever made before anchor
-                        [unfreezable, pending] = await eta.unfreezable(
-                            web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverAergoAddr,
-                            aergoErc20Addr
-                        );
-                    } catch (error) {}
+                    [unfreezable, pending] = await eta.unfreezable(
+                        web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverAergoAddr,
+                        aergoErc20Addr
+                    );
                 }
                 assert.deepStrictEqual(unfreezable, amount);
+                assert.deepStrictEqual(pending, "0");
             });
             it('Should build lock proof', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -123,15 +149,13 @@ describe('Test erc20 token transfers', function() {
                 let unlockable = "0";
                 let pending;
                 while (unlockable === "0") {
-                    try {
-                        // catch error in deposit query when no deposit was ever made before anchor
-                        [unlockable, pending] = await ate.unlockable(
-                            web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
-                            aergoErc20Addr
-                        );
-                    } catch (error) {}
+                    [unlockable, pending] = await ate.unlockable(
+                        web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
+                        aergoErc20Addr
+                    );
                 }
                 assert.deepStrictEqual(unlockable, amount);
+                assert.deepStrictEqual(pending, "0");
             });
             it('Should build freeze proof', async function() {
                 const receiverEthAddr = ethAddress;
@@ -174,15 +198,13 @@ describe('Test erc20 token transfers', function() {
                 let mintable = "0";
                 let pending;
                 while (mintable === "0") {
-                    try {
-                        // catch error in deposit query when no deposit was ever made before anchor
-                        [mintable, pending] = await eta.mintable(
-                            web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverAergoAddr,
-                            testErc20Addr
-                        );
-                    } catch (error) {}
+                    [mintable, pending] = await eta.mintable(
+                        web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverAergoAddr,
+                        testErc20Addr
+                    );
                 }
                 assert.deepStrictEqual(mintable, amount);
+                assert.deepStrictEqual(pending, "0");
             });
             it('Should build lock proof', async function() {
                 const receiverAergoAddr = aergoAddress;
@@ -225,15 +247,13 @@ describe('Test erc20 token transfers', function() {
                 let unlockable = "0";
                 let pending;
                 while (unlockable === "0") {
-                    try {
-                        // catch error in deposit query when no deposit was ever made before anchor
-                        [unlockable, pending] = await ate.unlockable(
-                            web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
-                            testErc20Addr
-                        );
-                    } catch (error) {}
+                    [unlockable, pending] = await ate.unlockable(
+                        web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr,
+                        testErc20Addr
+                    );
                 }
                 assert.deepStrictEqual(unlockable, amount);
+                assert.deepStrictEqual(pending, "0");
             });
             it('Should build burn proof', async function() {
                 const receiverEthAddr = ethAddress;

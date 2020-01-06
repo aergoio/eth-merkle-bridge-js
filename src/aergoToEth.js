@@ -310,7 +310,12 @@ async function withdrawable(
     const aergoBridge = Contract.atAddress(bridgeAergoAddr);
     // totalDeposit : total latest deposit including pending
     let query = aergoBridge.queryState(aergoStorageKey);
-    let storageValue = await hera.queryContractState(query);
+    let storageValue;
+    try {
+        storageValue = await hera.queryContractState(query);
+    } catch (Error) {
+        storageValue = 0;
+    }
     const totalDeposit = new BigNumber(storageValue)
 
     // get total withdrawn
@@ -328,7 +333,11 @@ async function withdrawable(
 
     // get anchored deposit : total deposit before the last anchor
     query = aergoBridge.queryState(aergoStorageKey, false, root);
-    storageValue = await hera.queryContractState(query);
+    try {
+        storageValue = await hera.queryContractState(query);
+    } catch (Error) {
+        storageValue = 0;
+    }
     const anchoredDeposit = new BigNumber(storageValue);
 
     // calculate withdrawable and pending
