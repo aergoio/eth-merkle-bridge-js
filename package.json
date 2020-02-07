@@ -14,11 +14,11 @@
     "@babel/polyfill": "^7.6.0",
     "@babel/preset-env": "^7.7.1",
     "@babel/register": "^7.6.2",
-    "@herajs/wallet": "0.13.2",
+    "@herajs/wallet": "0.17.0",
     "mocha": "^6.2.0"
   },
   "dependencies": {
-    "@herajs/client": "0.13.2",
+    "@herajs/client": "0.17.0",
     "bignumber.js": "^9.0.0",
     "web3": "^2.0.0-alpha.1"
   }
