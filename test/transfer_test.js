@@ -14,19 +14,19 @@ let aergoWallet;
 let hera;
 let account;
 let bridgeAergoAbi;
-const aergoPrivKeyEncrypted = "47CLj29W96rS9SsizUz4pueeuTT2GcSpkoAsvVC3USLzQ5kKTWKmz1WLKnqor2ET7hPd73TC9";
+const aergoPrivKeyEncrypted = "487xqHTkBLr6N31vRpuepjs8bTgUNUqPQgQtc1GqTCRSLpmAZRkEeV87pXEUsQcZHATC1G6PX";
 const ethPrivKey = "0xe4dd7889c679013814dfbda165c6457e18595ab04a5a3b9b1443472fc969e15d";
-const aergoAddress = "AmNMFbiVsqy6vg4njsTjgy7bKPFHFYhLV4rzQyrENUS9AM1e3tw5";
+const aergoAddress = "AmNPWDJMjU4g98Scm4AikW8JwQMGwWMztM7Qy8ggxNTkhgZMJHFp";
 const ethAddress = "0xfec3c905bcd3d9a5471452e53f82106844cb1e76";
 const amount = new BigNumber(10 * 10**18).toString();
 
 // contract addresses taken from eth-merkle-bridge $ make deploy_test_bridge
 const bridgeEthAddr = "0x89eD1D1C145F6bF3A7e62d2B8eB0e1Bf15Cb2374";
-const bridgeAergoAddr = "AmgQqVWX3JADRBEVkVCM4CyWdoeXuumeYGGJJxEeoAukRC26hxmw";
+const bridgeAergoAddr = "AmhAMtqsrf4akxMy89fhiNuyw7u7ooY9TV6Ke5FFctDYpFVAB44V";
 const aergoErc20Addr = "0xd898383A12CDE0eDF7642F7dD4D7006FdE5c433e";
 const testErc20Addr = "0x3f79E699eBb125054E425BD2cce38225CB861664";
 let peggedTestErc20Addr;
-const testArc1Addr = "AmgpYGMMPEnb7ukcJkhpGCGJXwqEq2MgpneN47hHrbBS7C3AjDke";
+const testArc1Addr = "AmgnNKadR4gv2ELgqgtyGM9ec5EnpHj5ai14z3juNmo6m6LsdtEU";
 
 describe('Test erc20 token transfers', function() {
     this.timeout(100000);
