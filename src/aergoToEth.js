@@ -39,6 +39,7 @@ export async function buildBurnTx(
     bridgeAergoAddr, 
     bridgeAergoAbi,
     receiverEthAddr, 
+    gasLimit=300000,
 ) {
     checkAergoAddress(txSender);
     checkAergoAddress(mintedArc1Addr);
@@ -49,6 +50,7 @@ export async function buildBurnTx(
     contract.loadAbi(bridgeAergoAbi);
     const builtTx = await contract.burn(...args).asTransaction({
         from: txSender,
+        limit: gasLimit,
     });
     return builtTx;
 }
@@ -68,6 +70,7 @@ export async function buildFreezeTx(
     bridgeAergoAddr, 
     bridgeAergoAbi,
     receiverEthAddr, 
+    gasLimit=300000,
 ) {
     checkAergoAddress(txSender);
     checkAergoAddress(bridgeAergoAddr);
@@ -78,6 +81,7 @@ export async function buildFreezeTx(
     const builtTx = await contract.freeze(...args).asTransaction({
         from: txSender,
         amount: amount.concat(' aer'),
+        limit: gasLimit,
     });
     return builtTx;
 }
@@ -193,7 +197,8 @@ export async function unlock(
     bridgeEthAbi,
     bridgeAergoAddr,
     receiverEthAddr, 
-    erc20Addr
+    erc20Addr,
+    gasLimit=300000,
 ) {
     let args = await buildUnlockArgs(
         web3, hera, bridgeEthAddr, bridgeAergoAddr, receiverEthAddr, 
@@ -204,7 +209,7 @@ export async function unlock(
         receiverEthAddr, args.balance, args.token, args.mp, args.bitmap,
         args.leafHeight
     ).send(
-        {from: web3.eth.defaultAccount, gas: 300000}
+        {from: web3.eth.defaultAccount, gas: gasLimit}
     );
 }
 

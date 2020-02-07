@@ -22,7 +22,8 @@ export function increaseApproval(
     spender, 
     amount, 
     erc20Addr, 
-    erc20Abi
+    erc20Abi,
+    gasLimit=300000,
 ) {
     checkEthereumAddress(spender);
     checkEthereumAddress(erc20Addr);
@@ -40,7 +41,7 @@ export function increaseApproval(
     }
     console.log("increaseAllowance() not in abi, trying increaseApproval()");
     return contract.methods.increaseApproval(spender, amount).send(
-        {from: web3.eth.defaultAccount, gas: 300000}
+        {from: web3.eth.defaultAccount, gas: gasLimit}
     );
 }
 
@@ -60,14 +61,15 @@ export function lock(
     erc20Addr, 
     amount, 
     bridgeEthAddr, 
-    bridgeEthAbi
+    bridgeEthAbi,
+    gasLimit=300000,
 ) {
     checkAergoAddress(receiverAergoAddr);
     checkEthereumAddress(erc20Addr);
     checkEthereumAddress(bridgeEthAddr);
     const contract = new web3.eth.Contract(bridgeEthAbi, bridgeEthAddr);
     return contract.methods.lock(erc20Addr, amount, receiverAergoAddr).send(
-        {from: web3.eth.defaultAccount, gas: 300000}
+        {from: web3.eth.defaultAccount, gas: gasLimit}
     );
 }
 
@@ -185,7 +187,7 @@ export async function buildLockProof(
 }
 
 /**
- * Build hera mint tx object to be send to Aergo Connect for signing and broadcasting
+ * Build hera mint tx object to be sent to Aergo Connect for signing and broadcasting
  * @param {object} web3 Provider (metamask or other web3 compatible)
  * @param {object} hera Herajs client
  * @param {string} txSender Aergo address of account signing the transaction
@@ -204,6 +206,7 @@ export async function buildMintTx(
     bridgeAergoAbi,
     receiverAergoAddr, 
     erc20Addr,
+    gasLimit=300000,
 ) {
     checkAergoAddress(txSender);
     const proof = await buildLockProof(
@@ -217,6 +220,7 @@ export async function buildMintTx(
     contract.loadAbi(bridgeAergoAbi);
     const builtTx = await contract.mint(...args).asTransaction({
         from: txSender,
+        limit: gasLimit,
     });
     return builtTx;
 }
@@ -242,6 +246,7 @@ export async function buildUnfreezeTx(
     bridgeAergoAbi,
     receiverAergoAddr, 
     aergoErc20Addr,
+    gasLimit=300000,
 ) {
     checkAergoAddress(txSender);
     const proof = await buildLockProof(
@@ -255,6 +260,7 @@ export async function buildUnfreezeTx(
     contract.loadAbi(bridgeAergoAbi);
     const builtTx = await contract.unfreeze(...args).asTransaction({
         from: txSender,
+        limit: gasLimit,
     });
     return builtTx;
 }
